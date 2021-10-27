@@ -25,7 +25,7 @@ class StdHemna(restx.StdRESTful):
 
         _ambient_dict = restx.get_site_dict(config_dict, 'Hemna', 'station',
                                             'password')
-        _ambient_dict.setdefault('server_url', self.archive_url)
+        _ambient_dict['server_url'] = self.archive_url
 
         self.archive_thread = HemnaThread(
             self.archive_queue, _manager_dict,
