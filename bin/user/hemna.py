@@ -73,7 +73,7 @@ class HemnaThread(restx.RESTThread):
 
     def __init__(self, queue, manager_dict, station, password, server_url,
                  protocol_name="Hemna", post_interval=None,
-                 max_backlog=sys.maxint, stale=None, log_success=True,
+                 max_backlog=10, stale=None, log_success=True,
                  log_failure=True, timeout=10, max_tries=3, retry_wait=5,
                  softwaretype='weewx-%s' % weewx.__version__,
                  skip_upload=False):
