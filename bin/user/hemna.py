@@ -199,12 +199,13 @@ class HemnaThread(restx.RESTThread):
 
         try:
             _res = requests.get(request, timeout=self.timeout)
+            logdbg(f"Sent data to hemna {_res.status_code}")
         except requests.ConnectionError:
             # WOW signals a bad login with a HTML Error 400 or 403 code:
             if 200 <= _res.status_code <= 299:
                 # success
-                return
+                return _res
             else:
                 # something failed
                 logerr("failed to post to hemna {}".format(_res.text))
-                return
+                return _res
