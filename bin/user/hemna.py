@@ -24,7 +24,7 @@ class StdHemna(restx.StdRESTful):
             config_dict, 'wx_binding')
 
         try:
-            _hemna_dict = weeutil.weeutil.accululateLeaves(
+            _hemna_dict = weeutil.weeutil.accumulateLeaves(
                 config_dict['StdRESTFul']['Hemna'], max_level=1
             )
         except KeyError as e:
