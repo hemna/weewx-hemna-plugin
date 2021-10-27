@@ -36,7 +36,18 @@ hemna_config = """
 """
 
 # construct our config dict
-hemna_dict = configobj.ConfigObj(StringIO(hemna_config))
+# hemna_dict = configobj.ConfigObj(StringIO(hemna_config))
+
+hemna_dict = {
+    'StdRESTful': {
+        'Hemna': {
+            'server_url': 'www.hemna.com',
+            'station': 'nothing',
+            'enable': 'true',
+            'password': 'password'
+        }
+    }
+}
 
 
 def loader():

@@ -1,5 +1,4 @@
 import re
-import sys
 import syslog
 import time
 import queue
@@ -8,6 +7,7 @@ import requests
 
 import weewx
 from weewx import restx
+import weeutil.weeutil
 # from weeutil import weeutil
 
 
@@ -23,13 +23,16 @@ class StdHemna(restx.StdRESTful):
         _manager_dict = weewx.manager.get_manager_dict_from_config(
             config_dict, 'wx_binding')
 
-        _ambient_dict = restx.get_site_dict(config_dict, 'Hemna', 'station',
-                                            'password')
-        _ambient_dict['server_url'] = self.archive_url
+        try:
+            _hemna_dict = weeutil.weeutil.accululateLeaves(
+                config_dict['StdRESTFul']['Hemna'], max_level=1
+            )
+        except KeyError as e:
+            syslog.syslog(syslog.LOG_ERR, "config error: missing parameter {}". format(e))
 
         self.archive_thread = HemnaThread(
             self.archive_queue, _manager_dict,
-            protocol_name="Hemna", **_ambient_dict)
+            protocol_name="Hemna", **_hemna_dict)
         self.archive_thread.start()
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
 
@@ -37,7 +40,7 @@ class StdHemna(restx.StdRESTful):
         self.loop_queue = queue.Queue()
         self.loop_thread = HemnaThread(
             self.loop_queue, _manager_dict, protocol_name="Hemna",
-            **_ambient_dict)
+            **_hemna_dict)
         self.loop_thread.start()
         self.bind(weewx.NEW_LOOP_PACKET, self.new_loop_packet)
 
@@ -148,7 +151,7 @@ class HemnaThread(restx.RESTThread):
 
         try:
             _res = requests.get(request, timeout=self.timeout)
-        except requests.ConnectionError as e:
+        except requests.ConnectionError:
             # WOW signals a bad login with a HTML Error 400 or 403 code:
             if 200 <= _res.status_code <= 299:
                 # success
