@@ -11,6 +11,55 @@ import weeutil.weeutil
 # from weeutil import weeutil
 
 
+# import/setup logging, WeeWX v3 is syslog based but WeeWX v4 is logging based,
+# try v4 logging and if it fails use v3 logging
+try:
+    # WeeWX4 logging
+    import logging
+    from weeutil.logger import log_traceback
+
+    log = logging.getLogger(__name__)
+
+    def logdbg(msg):
+        log.debug(msg)
+
+    def loginf(msg):
+        log.info(msg)
+
+    def logerr(msg):
+        log.error(msg)
+
+    # log_traceback() generates the same output but the signature and code is
+    # different between v3 and v4. We only need log_traceback at the log.error
+    # level so define a suitable wrapper function.
+    def log_traceback_critical(prefix=''):
+        log_traceback(log.critical, prefix=prefix)
+
+    def log_traceback_error(prefix=''):
+        log_traceback(log.error, prefix=prefix)
+
+    def log_traceback_debug(prefix=''):
+        log_traceback(log.debug, prefix=prefix)
+
+except ImportError:
+    # WeeWX legacy (v3) logging via syslog
+    import syslog
+    from weeutil.weeutil import log_traceback
+
+    def logmsg(level, msg):
+        syslog.syslog(level, 'gw1000: %s' % msg)
+
+    def logdbg(msg):
+        logmsg(syslog.LOG_DEBUG, msg)
+
+    def loginf(msg):
+        logmsg(syslog.LOG_INFO, msg)
+
+    def logerr(msg):
+        logmsg(syslog.LOG_ERR, msg)
+
+
+
 class StdHemna(restx.StdRESTful):
 
     archive_url = 'http://wx.hemna.com/'
@@ -28,7 +77,7 @@ class StdHemna(restx.StdRESTful):
                 config_dict['StdRESTFul']['Hemna'], max_level=1
             )
         except KeyError as e:
-            syslog.syslog(syslog.LOG_ERR, "config error: missing parameter {}". format(e))
+            logerr("config error: missing parameter {}". format(e))
 
         self.archive_thread = HemnaThread(
             self.archive_queue, _manager_dict,
