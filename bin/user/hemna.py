@@ -73,7 +73,7 @@ class StdHemna(restx.StdRESTful):
 
         try:
             _hemna_dict = weeutil.weeutil.accumulateLeaves(
-                config_dict['StdRESTFul']['Hemna'], max_level=1
+                config_dict['StdRESTful']['Hemna'], max_level=1
             )
         except KeyError as e:
             logerr("config error: missing parameter {}". format(e))
