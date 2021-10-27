@@ -1,5 +1,4 @@
 import re
-import syslog
 import time
 import queue
 import urllib
@@ -47,7 +46,7 @@ except ImportError:
     from weeutil.weeutil import log_traceback
 
     def logmsg(level, msg):
-        syslog.syslog(level, 'gw1000: %s' % msg)
+        syslog.syslog(level, 'hemna: %s' % msg)
 
     def logdbg(msg):
         logmsg(syslog.LOG_DEBUG, msg)
@@ -94,13 +93,13 @@ class StdHemna(restx.StdRESTful):
         self.bind(weewx.NEW_LOOP_PACKET, self.new_loop_packet)
 
     def new_archive_record(self, event):
-        syslog.syslog(syslog.LOG_DEBUG, "hemna: raw record: %s" % event.record)
+        logdbg("hemna: raw record: %s" % event.record)
         self.archive_queue.put(event.record)
 
     def new_loop_packet(self, event):
-        syslog.syslog(syslog.LOG_DEBUG, "hemna: raw packet: %s" % event.packet)
+        logdbg("hemna: raw packet: %s" % event.packet)
         self.cached_values.update(event.packet, event.packet['dateTime'])
-        syslog.syslog(syslog.LOG_DEBUG, "hemna: cached packet: %s" %
+        logdbg("hemna: cached packet: %s" %
                       self.cached_values.get_packet(event.packet['dateTime']))
         self.loop_queue.put(
             self.cached_values.get_packet(event.packet['dateTime']))
@@ -189,9 +188,9 @@ class HemnaThread(restx.RESTThread):
         _url = "%s?%s" % (self.server_url, _urlquery)
         # show the url in the logs for debug, but mask any password
         if weewx.debug >= 2:
-            syslog.syslog(syslog.LOG_DEBUG, "restx: HEMNA: url: %s" %
-                          re.sub(r"siteAuthenticationKey=[^\&]*",
-                                 "siteAuthenticationKey=XXX", _url))
+            logdbg("restx: HEMNA: url: %s" %
+                   re.sub(r"siteAuthenticationKey=[^\&]*",
+                          "siteAuthenticationKey=XXX", _url))
         return _url
 
     def post_request(self, request, payload=None):  # @UnusedVariable
@@ -207,5 +206,5 @@ class HemnaThread(restx.RESTThread):
                 return
             else:
                 # something failed
-                syslog.syslog(syslog.LOG_ERR, "failed to post to hemna {}".format(_res.text))
+                logerr("failed to post to hemna {}".format(_res.text))
                 return
