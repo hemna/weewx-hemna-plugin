@@ -166,7 +166,7 @@ class HemnaThread(restx.RESTThread):
                     # _v = urllib.quote_plus(weeutil.timestamp_to_string(_v))
                     format_str = "%Y-%m-%d %H:%M:%S"
                     date_str = time.strftime(format_str, time.localtime(_v))
-                    _v = urllib.quote_plus(date_str)
+                    _v = urllib.parse.quote_plus(date_str)
                 # Format the value, and accumulate in _liststr:
                 _liststr.append(HemnaThread._FORMATS[_key] % _v)
             else:

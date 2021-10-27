@@ -41,9 +41,9 @@ hemna_config = """
 hemna_dict = {
     'StdRESTful': {
         'Hemna': {
+            'enable': 'true',
             'server_url': 'www.hemna.com',
             'station': 'nothing',
-            'enable': 'true',
             'password': 'password'
         }
     }
