@@ -2,7 +2,7 @@ import re
 import sys
 import syslog
 import time
-import Queue
+import queue
 import urllib
 import urllib2
 
@@ -18,7 +18,7 @@ class StdHemna(restx.StdRESTful):
     def __init__(self, engine, config_dict):
         super(StdHemna, self).__init__(engine, config_dict)
 
-        self.archive_queue = Queue.Queue()
+        self.archive_queue = queue.Queue()
 
         _manager_dict = weewx.manager.get_manager_dict_from_config(
             config_dict, 'wx_binding')
@@ -34,7 +34,7 @@ class StdHemna(restx.StdRESTful):
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
 
         self.cached_values = restx.CachedValues()
-        self.loop_queue = Queue.Queue()
+        self.loop_queue = queue.Queue()
         self.loop_thread = HemnaThread(
             self.loop_queue, _manager_dict, protocol_name="Hemna",
             **_ambient_dict)
