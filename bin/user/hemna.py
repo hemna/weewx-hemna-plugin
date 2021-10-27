@@ -193,13 +193,13 @@ class HemnaThread(restx.RESTThread):
                           "siteAuthenticationKey=XXX", _url))
         return _url
 
-    def post_request(self, request, data=None):  # @UnusedVariable
-        """Version of post_request() for the WOW protocol, which
-        uses a response error code to signal a bad login."""
+    def process_record(self, record, dbm):
+        _ = dbm
 
+        url = self.format_url(record)
         try:
-            logdbg(f"Sending {request}")
-            _res = requests.get(request, timeout=self.timeout)
+            logdbg(f"Sending {url}")
+            _res = requests.get(url, timeout=self.timeout)
             logdbg(f"Sent data to hemna {_res.status_code}")
         except requests.ConnectionError:
             # WOW signals a bad login with a HTML Error 400 or 403 code:
