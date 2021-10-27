@@ -4,7 +4,7 @@ import syslog
 import time
 import queue
 import urllib
-import urllib2
+import requests
 
 import weewx
 from weewx import restx
@@ -145,16 +145,15 @@ class HemnaThread(restx.RESTThread):
     def post_request(self, request, payload=None):  # @UnusedVariable
         """Version of post_request() for the WOW protocol, which
         uses a response error code to signal a bad login."""
+
         try:
-            try:
-                _response = urllib2.urlopen(request, timeout=self.timeout)
-            except TypeError:
-                _response = urllib2.urlopen(request)
-        except urllib2.HTTPError as e:
+            _res = requests.get(request, timeout=self.timeout)
+        except requests.ConnectionError as e:
             # WOW signals a bad login with a HTML Error 400 or 403 code:
-            if e.code == 400 or e.code == 403:
-                raise restx.BadLogin(e)
+            if 200 <= _res.status_code <= 299:
+                # success
+                return
             else:
-                raise
-        else:
-            return _response
+                # something failed
+                syslog.syslog(syslog.LOG_ERR, "failed to post to hemna {}".format(_res.text))
+                return
